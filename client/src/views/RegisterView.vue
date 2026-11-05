@@ -36,6 +36,10 @@
       </button>
     </form>
 
+    <p v-if="IS_DEMO" class="mt-4 text-xs leading-relaxed text-[var(--muted)]">
+      En la demo, la cuenta se crea solo en este navegador.
+    </p>
+
     <p class="mt-6 text-sm text-[var(--ink-3)]">
       ¿Ya tienes cuenta?
       <RouterLink to="/auth/login" class="auth-link">Inicia sesión</RouterLink>
@@ -46,6 +50,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { IS_DEMO } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
 

@@ -38,7 +38,13 @@
                   </button>
                 </div>
                 <p class="mt-2 text-xs text-[var(--muted)]">
-                  Soporta Amazon, PcComponentes y la mayoría de tiendas online.
+                  <template v-if="IS_DEMO">
+                    Demo estática: el scraping real corre en el servidor. Aquí
+                    puedes analizar la URL y completar los datos a mano.
+                  </template>
+                  <template v-else>
+                    Soporta Amazon, PcComponentes y la mayoría de tiendas online.
+                  </template>
                 </p>
               </div>
 
@@ -163,6 +169,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { Image, Search, X } from 'lucide-vue-next'
+import { IS_DEMO } from '@/api'
 import { useItemsStore } from '@/stores/items'
 import { useCollectionsStore } from '@/stores/collections'
 import { toast } from 'vue-sonner'

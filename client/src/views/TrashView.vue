@@ -65,6 +65,7 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ArrowLeft, Image, RotateCcw, Trash2, X } from 'lucide-vue-next'
+import { api } from '@/api'
 import { useItemsStore } from '@/stores/items'
 import { askConfirm } from '@/composables/useDialog'
 import { toast } from 'vue-sonner'
@@ -80,11 +81,7 @@ const loading = ref(false)
 async function loadTrash() {
   loading.value = true
   try {
-    const response = await fetch('/api/items?include_deleted=true', {
-      credentials: 'include',
-    })
-    if (!response.ok) throw new Error('No se pudo cargar la papelera')
-    items.value = await response.json()
+    items.value = await api.items.getAll({ include_deleted: 'true' })
   } catch (error: any) {
     toast.error(error.message)
   } finally {

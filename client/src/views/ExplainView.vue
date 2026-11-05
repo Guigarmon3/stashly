@@ -8,6 +8,16 @@
       subtitle="Todo lo que necesitas saber para sacar partido a Stashly, sin letra pequeña."
     />
 
+    <div
+      v-if="IS_DEMO"
+      class="mb-6 border border-[var(--line)] bg-[var(--bg-card)] p-4 text-sm leading-relaxed text-[var(--ink-3)]"
+    >
+      <strong class="text-[var(--ink)]">Estás en la demo pública.</strong>
+      Corre entera en tu navegador y guarda los cambios en local. El scraping
+      real, las cuentas con contraseña y SQLite necesitan el servidor del
+      repositorio.
+    </div>
+
     <div class="border-t border-[var(--line)]">
       <AccordionItem title="¿Cómo añadir un producto por URL?" icon="Link">
         <ol class="space-y-2">
@@ -100,7 +110,7 @@
             <li><strong>Scraping server-side:</strong> el análisis de URLs se hace en el backend con Cheerio, sin APIs externas.</li>
             <li><strong>Sin dependencias de terceros:</strong> no se usa ningún servicio externo para auth, scraping o almacenamiento.</li>
           </ul>
-          <p class="text-sm text-[var(--muted)]">
+          <p v-if="!IS_DEMO" class="text-sm text-[var(--muted)]">
             Todo corre desde un solo proceso: <code>npm start</code> sirve frontend y backend.
           </p>
         </div>
@@ -149,6 +159,7 @@
 </template>
 
 <script setup lang="ts">
+import { IS_DEMO } from '@/api'
 import PageHeader from '@/components/PageHeader.vue'
 import AccordionItem from '@/components/AccordionItem.vue'
 </script>
