@@ -7,7 +7,7 @@
 
 const SESSION_COOKIE = 'stashly_session'
 const SESSION_TTL = 30 * 86_400_000
-const PBKDF2_ITERATIONS = 120_000
+const PBKDF2_ITERATIONS = 100_000
 
 /* ------------------------------------------------------------------ */
 /* Respuestas y utilidades                                             */
