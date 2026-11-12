@@ -1,4 +1,4 @@
-name: Demo en GitHub Pages
+name: Redirección en GitHub Pages
 
 on:
   push:
@@ -18,28 +18,74 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Descarga el repositorio
-        uses: actions/checkout@v4
-
-      - name: Prepara Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Instala dependencias
-        run: npm ci
-
-      - name: Construye la demo
-        run: npm run build
-        env:
-          VITE_DEMO: "1"
-          VITE_BASE: /stashly/
-
-      - name: Prepara el sitio para Pages
+      - name: Prepara la redirección
         run: |
-          cp dist/index.html dist/404.html
-          touch dist/.nojekyll
+          mkdir -p site
+          cat > site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="es">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Stashly — Carrito editorial</title>
+            <meta http-equiv="refresh" content="0; url=https://stashly.guigarmon3.workers.dev/">
+            <link rel="canonical" href="https://stashly.guigarmon3.workers.dev/">
+            <style>
+              :root { color-scheme: light; }
+              body {
+                margin: 0;
+                min-height: 100vh;
+                display: grid;
+                place-items: center;
+                background: #f3ede4;
+                color: #2a211a;
+                font-family: Georgia, 'Times New Roman', serif;
+              }
+              main { text-align: center; padding: 2rem; }
+              .mark {
+                width: 54px;
+                height: 54px;
+                border: 1px solid #cbbfae;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                margin: 0 auto 1.4rem;
+                font-size: 1.2rem;
+              }
+              h1 {
+                font-size: clamp(2rem, 6vw, 3rem);
+                font-weight: 400;
+                letter-spacing: -0.03em;
+                margin: 0 0 0.8rem;
+              }
+              p {
+                font-family: ui-monospace, 'Courier New', monospace;
+                font-size: 0.72rem;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: #8a7a68;
+              }
+              a {
+                color: #8a4b2f;
+                text-decoration: none;
+                border-bottom: 1px solid #8a4b2f;
+                padding-bottom: 2px;
+              }
+            </style>
+          </head>
+          <body>
+            <main>
+              <div class="mark">S</div>
+              <h1>Stashly</h1>
+              <p>Abriendo tu colección…</p>
+              <p><a href="https://stashly.guigarmon3.workers.dev/">Entrar ahora</a></p>
+            </main>
+            <script>location.replace('https://stashly.guigarmon3.workers.dev/')</script>
+          </body>
+          </html>
+          HTML
+          cp site/index.html site/404.html
+          touch site/.nojekyll
 
       - name: Configura Pages
         uses: actions/configure-pages@v5
@@ -47,7 +93,7 @@ jobs:
       - name: Sube el artefacto
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build
