@@ -39,7 +39,7 @@ El frontend y la API viven en el mismo proyecto. El servidor gestiona cuentas, c
 
 ## Demo pública
 
-La demo de GitHub Pages es una **versión estática**: corre entera en el navegador y guarda los cambios en `localStorage`. Sirve para probar la interfaz y el flujo completo sin instalar nada. El scraping real, las cuentas con contraseña hasheada y la base de datos SQLite necesitan el servidor incluido en el repositorio.
+La demo de GitHub Pages es una **versión estática**: corre entera en el navegador y guarda los cambios en `localStorage`. Cada visitante crea su propia cuenta local, con contraseña hasheada, y ve solo sus datos: no hay una cuenta compartida. El scraping real, las cuentas sincronizadas entre dispositivos y la base de datos SQLite necesitan el servidor incluido en el repositorio.
 
 ## Estructura
 

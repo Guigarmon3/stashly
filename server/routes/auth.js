@@ -6,18 +6,31 @@ import db from '../lib/db.js'
 
 const router = Router()
 
+function normalizeIdentity(value) {
+  return String(value || '').trim().toLowerCase()
+}
+
+function isValidIdentity(identity) {
+  if (identity.includes('@')) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity)
+  }
+  return /^[a-z0-9._-]{3,30}$/.test(identity)
+}
+
 router.post('/register', async (req, res) => {
   try {
     const { email, password } = req.body
-    if (!email || !password) return res.status(400).json({ error: 'Email y contraseña requeridos' })
+    const identity = normalizeIdentity(email)
+    if (!identity || !password) return res.status(400).json({ error: 'Usuario/correo y contraseña requeridos' })
+    if (!isValidIdentity(identity)) return res.status(400).json({ error: 'Usa un usuario de 3 a 30 caracteres o un correo válido' })
     if (password.length < 6) return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' })
     
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase())
-    if (existing) return res.status(400).json({ error: 'Este email ya está registrado' })
+    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(identity)
+    if (existing) return res.status(400).json({ error: 'Esta cuenta ya está registrada' })
     
     const userId = uuidv4()
     const passwordHash = await hashPassword(password)
-    db.prepare('INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)').run(userId, email.toLowerCase(), passwordHash, Date.now())
+    db.prepare('INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)').run(userId, identity, passwordHash, Date.now())
     
     // Create default collection
     const collId = uuidv4()
@@ -30,7 +43,7 @@ router.post('/register', async (req, res) => {
       maxAge: expiresAt - Date.now(),
       path: '/'
     })
-    res.json({ user: { id: userId, email: email.toLowerCase() } })
+    res.json({ user: { id: userId, email: identity } })
   } catch (e) {
     res.status(500).json({ error: 'Error al registrar' })
   }
@@ -39,13 +52,14 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body
-    if (!email || !password) return res.status(400).json({ error: 'Email y contraseña requeridos' })
+    const identity = normalizeIdentity(email)
+    if (!identity || !password) return res.status(400).json({ error: 'Usuario/correo y contraseña requeridos' })
     
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase())
-    if (!user) return res.status(401).json({ error: 'Credenciales inválidas' })
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(identity)
+    if (!user) return res.status(401).json({ error: 'Usuario/correo o contraseña incorrectos' })
     
     const valid = await verifyPassword(password, user.password_hash)
-    if (!valid) return res.status(401).json({ error: 'Credenciales inválidas' })
+    if (!valid) return res.status(401).json({ error: 'Usuario/correo o contraseña incorrectos' })
     
     const { sessionId, expiresAt } = createSession(user.id)
     res.cookie('stashly_session', sessionId, {

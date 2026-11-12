@@ -1,8 +1,8 @@
 import type { Collection, Item, PriceHistory } from '@/types'
-import { createDemoSeed, DEMO_EMAIL } from './seed'
+import { createEmptyState, createStarterContent } from './seed'
 import type { DemoState, DemoUser } from './types'
 
-const STORAGE_KEY = 'stashly:demo:v1'
+const STORAGE_KEY = 'stashly:demo:v2'
 let memory: DemoState | null = null
 
 function uid() {
@@ -28,7 +28,7 @@ function read(): DemoState {
     /* localStorage puede estar bloqueado; usamos memoria */
   }
 
-  if (!memory || memory.users.length === 0) memory = createDemoSeed()
+  if (!memory) memory = createEmptyState()
   write(memory)
   return memory
 }
@@ -87,46 +87,106 @@ function titleFromUrl(parsed: URL) {
   return clean.charAt(0).toUpperCase() + clean.slice(1)
 }
 
+const encoder = new TextEncoder()
+
+function toHex(buffer: ArrayBuffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+function createSalt() {
+  const bytes = new Uint8Array(16)
+  globalThis.crypto.getRandomValues(bytes)
+  return Array.from(bytes)
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+function normalizeIdentity(value: string) {
+  return String(value || '').trim().toLowerCase()
+}
+
+function isValidIdentity(identity: string) {
+  if (identity.includes('@')) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity)
+  }
+  return /^[a-z0-9._-]{3,30}$/.test(identity)
+}
+
+async function hashPassword(password: string, salt: string) {
+  const material = await globalThis.crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits'],
+  )
+  const bits = await globalThis.crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: encoder.encode(salt),
+      iterations: 120_000,
+      hash: 'SHA-256',
+    },
+    material,
+    256,
+  )
+  return toHex(bits)
+}
+
+async function verifyPassword(password: string, salt: string, hash: string) {
+  const candidate = await hashPassword(password, salt)
+  return candidate === hash
+}
+
 const auth = {
   async register(email: string, password: string) {
     const state = read()
-    const normalized = String(email || '').trim().toLowerCase()
-    if (!normalized || !password) throw new Error('Email y contraseña requeridos')
+    const identity = normalizeIdentity(email)
+    if (!identity || !password) {
+      throw new Error('Usuario/correo y contraseña requeridos')
+    }
+    if (!isValidIdentity(identity)) {
+      throw new Error('Usa un usuario de 3 a 30 caracteres o un correo válido')
+    }
     if (String(password).length < 6) {
       throw new Error('La contraseña debe tener al menos 6 caracteres')
     }
-    if (state.users.some((user) => user.email === normalized)) {
-      throw new Error('Este email ya está registrado')
+    if (state.users.some((user) => user.email === identity)) {
+      throw new Error('Esta cuenta ya está registrada')
     }
 
-    const now = Date.now()
-    const user: DemoUser = { id: uid(), email: normalized }
-    state.users.push(user)
-    state.collections.push({
+    const salt = createSalt()
+    const passwordHash = await hashPassword(password, salt)
+    const user: DemoUser = {
       id: uid(),
-      user_id: user.id,
-      name: 'Mi lista',
-      color: null,
-      icon: null,
-      position: 0,
-      collapsed: false,
-      created_at: now,
-      updated_at: now,
-    })
+      email: identity,
+      passwordHash,
+      salt,
+    }
+    state.users.push(user)
+
+    const starter = createStarterContent(user.id)
+    state.collections.push(...starter.collections)
+    state.items.push(...starter.items)
+    state.priceHistory.push(...starter.priceHistory)
     state.sessionUserId = user.id
-    state.autoLogin = true
     write(state)
     return { user: publicUser(user) }
   },
 
   async login(email: string, password: string) {
     const state = read()
-    const normalized = String(email || '').trim().toLowerCase()
-    if (!normalized || !password) throw new Error('Credenciales inválidas')
-    const user = state.users.find((entry) => entry.email === normalized)
-    if (!user) throw new Error('Credenciales inválidas')
+    const identity = normalizeIdentity(email)
+    if (!identity || !password) {
+      throw new Error('Usuario/correo o contraseña incorrectos')
+    }
+    const user = state.users.find((entry) => entry.email === identity)
+    if (!user) throw new Error('Usuario/correo o contraseña incorrectos')
+    const valid = await verifyPassword(password, user.salt, user.passwordHash)
+    if (!valid) throw new Error('Usuario/correo o contraseña incorrectos')
     state.sessionUserId = user.id
-    state.autoLogin = true
     write(state)
     return { user: publicUser(user) }
   },
@@ -134,20 +194,12 @@ const auth = {
   async logout() {
     const state = read()
     state.sessionUserId = null
-    state.autoLogin = false
     write(state)
     return { ok: true }
   },
 
   async me() {
     const state = read()
-    if (!state.sessionUserId && state.autoLogin) {
-      const demo = state.users.find((user) => user.email === DEMO_EMAIL)
-      if (demo) {
-        state.sessionUserId = demo.id
-        write(state)
-      }
-    }
     const user = state.users.find((entry) => entry.id === state.sessionUserId)
     if (!user) throw new Error('No autorizado')
     return { user: publicUser(user) }

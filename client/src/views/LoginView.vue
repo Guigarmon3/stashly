@@ -5,15 +5,15 @@
 
     <form class="space-y-5" @submit.prevent="handleLogin">
       <div>
-        <label class="field-label" for="login-email">Correo electrónico</label>
+        <label class="field-label" for="login-email">Usuario o correo</label>
         <input
           id="login-email"
           v-model="email"
-          type="email"
+          type="text"
           required
-          autocomplete="email"
+          autocomplete="username"
           class="input"
-          placeholder="tu@correo.com"
+          placeholder="guigarmon3 o tu@correo.com"
         />
       </div>
 
@@ -35,19 +35,8 @@
       </button>
     </form>
 
-    <button
-      v-if="IS_DEMO"
-      type="button"
-      class="btn mt-3 w-full"
-      :disabled="loading"
-      @click="enterDemo"
-    >
-      <Sparkles :size="15" />
-      Entrar en la demo
-    </button>
-
     <p v-if="IS_DEMO" class="mt-4 text-xs leading-relaxed text-[var(--muted)]">
-      Demo estática: el acceso y los datos viven solo en este navegador.
+      Demo local: crea tu propia cuenta y los datos se guardan solo en este navegador.
     </p>
 
     <p class="mt-6 text-sm text-[var(--ink-3)]">
@@ -60,7 +49,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { Sparkles } from 'lucide-vue-next'
 import { IS_DEMO } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
@@ -77,19 +65,6 @@ async function handleLogin() {
   try {
     await authStore.login(email.value, password.value)
     toast.success('¡Bienvenido de vuelta!')
-    router.push('/carrito')
-  } catch (error: any) {
-    toast.error(error.message)
-  } finally {
-    loading.value = false
-  }
-}
-
-async function enterDemo() {
-  loading.value = true
-  try {
-    await authStore.login('demo@stashly.app', 'demo')
-    toast.success('Demo lista')
     router.push('/carrito')
   } catch (error: any) {
     toast.error(error.message)
