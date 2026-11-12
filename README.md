@@ -2,7 +2,9 @@
 
 Wishlist editorial para guardar los productos que quieres comprar, organizarlos y decidir con calma.
 
-**Demo en vivo:** [guigarmon3.github.io/stashly](https://guigarmon3.github.io/stashly/)
+**App completa:** [stashly.guigarmon3.workers.dev](https://stashly.guigarmon3.workers.dev/)
+
+**Demo estática:** [guigarmon3.github.io/stashly](https://guigarmon3.github.io/stashly/)
 
 ## Qué es
 
@@ -39,7 +41,9 @@ El frontend y la API viven en el mismo proyecto. El servidor gestiona cuentas, c
 
 ## Demo pública
 
-La demo de GitHub Pages es una **versión estática**: corre entera en el navegador y guarda los cambios en `localStorage`. Cada visitante crea su propia cuenta local, con contraseña hasheada, y ve solo sus datos: no hay una cuenta compartida. El scraping real, las cuentas sincronizadas entre dispositivos y la base de datos SQLite necesitan el servidor incluido en el repositorio.
+La app completa está desplegada en [stashly.guigarmon3.workers.dev](https://stashly.guigarmon3.workers.dev/): frontend, API y base de datos D1 en el mismo dominio, con cuentas reales separadas por persona.
+
+La versión de GitHub Pages es una **demo estática** de la interfaz: corre entera en el navegador y guarda los cambios en `localStorage`. Cada visitante crea su propia cuenta local y ve solo sus datos. Las cuentas de esta demo no están conectadas a la base de datos real.
 
 ## App completa en Cloudflare
 
