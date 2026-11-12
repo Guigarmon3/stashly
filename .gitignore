@@ -15,6 +15,7 @@ data/
 # Herramientas locales
 .opencode/
 .local/
+.wrangler/
 
 # Copias y temporales
 *.bak
