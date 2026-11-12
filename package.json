@@ -8,7 +8,11 @@
     "dev:server": "node --watch server/index.js",
     "dev:client": "vite",
     "build": "vite build",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "npm run build && wrangler deploy",
+    "db:local": "wrangler d1 execute stashly --local --file=worker/schema.sql",
+    "db:remote": "wrangler d1 execute stashly --remote --file=worker/schema.sql"
   },
   "keywords": [],
   "author": "",
