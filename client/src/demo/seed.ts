@@ -1,22 +1,23 @@
 import type { Collection, Item, PriceHistory } from '@/types'
 import type { DemoState } from './types'
 
-export const DEMO_EMAIL = 'demo@stashly.app'
-
 const DAY = 86_400_000
 
 const photo = (id: string) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=80`
 
 /**
- * Datos de ejemplo para la demo pública. Se generan una sola vez y se
- * guardan en localStorage; a partir de ahí el visitante puede tocarlo todo.
+ * Contenido inicial de cada cuenta local de la demo. Se genera con IDs
+ * propios para que dos cuentas del mismo navegador nunca compartan datos.
  */
-export function createDemoSeed(): DemoState {
+export function createStarterContent(userId: string): {
+  collections: Collection[]
+  items: Item[]
+  priceHistory: PriceHistory[]
+} {
   const now = Date.now()
-  const userId = 'demo-user'
 
-  const collections: Collection[] = [
+  const baseCollections: Collection[] = [
     {
       id: 'col-tecnologia',
       user_id: userId,
@@ -52,7 +53,7 @@ export function createDemoSeed(): DemoState {
     },
   ]
 
-  const items: Item[] = [
+  const baseItems: Item[] = [
     {
       id: 'item-auriculares',
       user_id: userId,
@@ -308,7 +309,7 @@ export function createDemoSeed(): DemoState {
     },
   ]
 
-  const priceHistory: PriceHistory[] = [
+  const basePriceHistory: PriceHistory[] = [
     {
       id: 'ph-auriculares-1',
       item_id: 'item-auriculares',
@@ -391,12 +392,34 @@ export function createDemoSeed(): DemoState {
     },
   ]
 
+  const prefix = `${userId}--`
+
   return {
-    users: [{ id: userId, email: DEMO_EMAIL }],
-    sessionUserId: userId,
-    autoLogin: true,
-    collections,
-    items,
-    priceHistory,
+    collections: baseCollections.map((collection) => ({
+      ...collection,
+      id: `${prefix}${collection.id}`,
+      user_id: userId,
+    })),
+    items: baseItems.map((item) => ({
+      ...item,
+      id: `${prefix}${item.id}`,
+      user_id: userId,
+      collection_id: item.collection_id ? `${prefix}${item.collection_id}` : null,
+    })),
+    priceHistory: basePriceHistory.map((entry) => ({
+      ...entry,
+      id: `${prefix}${entry.id}`,
+      item_id: `${prefix}${entry.item_id}`,
+    })),
+  }
+}
+
+export function createEmptyState(): DemoState {
+  return {
+    users: [],
+    sessionUserId: null,
+    collections: [],
+    items: [],
+    priceHistory: [],
   }
 }

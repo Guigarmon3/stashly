@@ -13,9 +13,10 @@
       class="mb-6 border border-[var(--line)] bg-[var(--bg-card)] p-4 text-sm leading-relaxed text-[var(--ink-3)]"
     >
       <strong class="text-[var(--ink)]">Estás en la demo pública.</strong>
-      Corre entera en tu navegador y guarda los cambios en local. El scraping
-      real, las cuentas con contraseña y SQLite necesitan el servidor del
-      repositorio.
+      Corre entera en tu navegador y guarda los cambios en local. Cada persona
+      crea su propia cuenta, con contraseña hasheada, y ve solo sus datos. El
+      scraping real, las cuentas sincronizadas entre dispositivos y SQLite
+      necesitan el servidor del repositorio.
     </div>
 
     <div class="border-t border-[var(--line)]">

@@ -5,15 +5,15 @@
 
     <form class="space-y-5" @submit.prevent="handleRegister">
       <div>
-        <label class="field-label" for="register-email">Correo electrónico</label>
+        <label class="field-label" for="register-email">Usuario o correo</label>
         <input
           id="register-email"
           v-model="email"
-          type="email"
+          type="text"
           required
-          autocomplete="email"
+          autocomplete="username"
           class="input"
-          placeholder="tu@correo.com"
+          placeholder="guigarmon3 o tu@correo.com"
         />
       </div>
 
@@ -37,7 +37,7 @@
     </form>
 
     <p v-if="IS_DEMO" class="mt-4 text-xs leading-relaxed text-[var(--muted)]">
-      En la demo, la cuenta se crea solo en este navegador.
+      En la demo, la cuenta y sus datos se guardan solo en este navegador.
     </p>
 
     <p class="mt-6 text-sm text-[var(--ink-3)]">
