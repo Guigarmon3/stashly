@@ -13,7 +13,8 @@
           required
           autocomplete="username"
           class="input"
-          placeholder="guigarmon3 o tu@correo.com"
+          placeholder="tu usuario o tu@correo.com"
+          @input="errorMessage = ''"
         />
       </div>
 
@@ -28,8 +29,11 @@
           autocomplete="new-password"
           class="input"
           placeholder="Mínimo 6 caracteres"
+          @input="errorMessage = ''"
         />
       </div>
+
+      <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
       <button type="submit" class="btn btn-primary w-full" :disabled="loading">
         {{ loading ? 'Creando…' : 'Crear cuenta' }}
@@ -37,7 +41,7 @@
     </form>
 
     <p v-if="IS_DEMO" class="mt-4 text-xs leading-relaxed text-[var(--muted)]">
-      En la demo, la cuenta y sus datos se guardan solo en este navegador.
+      En la demo, la cuenta se crea aquí y sus datos se guardan solo en este navegador.
     </p>
 
     <p class="mt-6 text-sm text-[var(--ink-3)]">
@@ -60,15 +64,19 @@ const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
+const errorMessage = ref('')
 
 async function handleRegister() {
   loading.value = true
+  errorMessage.value = ''
   try {
     await authStore.register(email.value, password.value)
     toast.success('¡Cuenta creada! Bienvenido a Stashly')
     router.push('/carrito')
   } catch (error: any) {
-    toast.error(error.message)
+    const message = error?.message || 'No se pudo crear la cuenta'
+    errorMessage.value = message
+    toast.error(message)
   } finally {
     loading.value = false
   }
