@@ -13,7 +13,8 @@
           required
           autocomplete="username"
           class="input"
-          placeholder="guigarmon3 o tu@correo.com"
+          placeholder="tu usuario o tu@correo.com"
+          @input="errorMessage = ''"
         />
       </div>
 
@@ -27,8 +28,11 @@
           autocomplete="current-password"
           class="input"
           placeholder="••••••••"
+          @input="errorMessage = ''"
         />
       </div>
+
+      <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
       <button type="submit" class="btn btn-primary w-full" :disabled="loading">
         {{ loading ? 'Entrando…' : 'Entrar' }}
@@ -36,7 +40,8 @@
     </form>
 
     <p v-if="IS_DEMO" class="mt-4 text-xs leading-relaxed text-[var(--muted)]">
-      Demo local: crea tu propia cuenta y los datos se guardan solo en este navegador.
+      Demo local: las cuentas se crean aquí y se guardan solo en este navegador.
+      No están conectadas a la base de datos real.
     </p>
 
     <p class="mt-6 text-sm text-[var(--ink-3)]">
@@ -59,15 +64,19 @@ const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
+const errorMessage = ref('')
 
 async function handleLogin() {
   loading.value = true
+  errorMessage.value = ''
   try {
     await authStore.login(email.value, password.value)
     toast.success('¡Bienvenido de vuelta!')
     router.push('/carrito')
   } catch (error: any) {
-    toast.error(error.message)
+    const message = error?.message || 'No se pudo iniciar sesión'
+    errorMessage.value = message
+    toast.error(message)
   } finally {
     loading.value = false
   }
