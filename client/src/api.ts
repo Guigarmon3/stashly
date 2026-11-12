@@ -1,3 +1,5 @@
+import { demoApi } from './demo/api'
+
 const API_BASE = '/api'
 
 async function request(url: string, options: RequestInit = {}) {
@@ -16,7 +18,7 @@ async function request(url: string, options: RequestInit = {}) {
   return res.json()
 }
 
-export const api = {
+const httpApi = {
   auth: {
     register: (email: string, password: string) => request('/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) }),
     login: (email: string, password: string) => request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
@@ -48,3 +50,8 @@ export const api = {
     import: (data: any) => request('/sync/import', { method: 'POST', body: JSON.stringify(data) })
   }
 }
+
+const demoFlag = import.meta.env.VITE_DEMO
+export const IS_DEMO = demoFlag === '1' || demoFlag === 'true'
+
+export const api = IS_DEMO ? demoApi : httpApi

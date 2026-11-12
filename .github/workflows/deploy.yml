@@ -1,0 +1,61 @@
+name: Demo en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descarga el repositorio
+        uses: actions/checkout@v4
+
+      - name: Prepara Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instala dependencias
+        run: npm ci
+
+      - name: Construye la demo
+        run: npm run build
+        env:
+          VITE_DEMO: "1"
+          VITE_BASE: /stashly/
+
+      - name: Prepara el sitio para Pages
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+
+      - name: Configura Pages
+        uses: actions/configure-pages@v5
+
+      - name: Sube el artefacto
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publica
+        id: deployment
+        uses: actions/deploy-pages@v4

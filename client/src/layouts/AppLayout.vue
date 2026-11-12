@@ -169,6 +169,12 @@
             </button>
           </div>
         </div>
+        <p
+          v-if="IS_DEMO && !sidebarCollapsed"
+          class="mono mt-2 text-[10px] text-[var(--muted)]"
+        >
+          Demo · datos en tu navegador
+        </p>
       </div>
     </aside>
 
@@ -214,6 +220,7 @@ import {
   ShoppingBag,
   Trash2,
 } from 'lucide-vue-next'
+import { IS_DEMO } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useCollectionsStore } from '@/stores/collections'
 import { useItemsStore } from '@/stores/items'

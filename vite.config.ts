@@ -3,7 +3,10 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
+const base = process.env.VITE_BASE || '/'
+
 export default defineConfig({
+  base,
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
